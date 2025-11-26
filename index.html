@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Graduation Party</title>
+    <style>
+        /* --- ESTILOS GENERALES --- */
+        body { margin: 0; padding: 0; overflow: hidden; background-color: #050505; font-family: 'Courier New', Courier, monospace; }
+        
+        /* 1. PANTALLA DE INICIO (OVERLAY) */
+        #start-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(5, 5, 5, 0.85); 
+            backdrop-filter: blur(8px); 
+            z-index: 9999; 
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: opacity 0.8s ease;
+        }
+
+        .start-content {
+            text-align: center;
+            color: white;
+            animation: pulse 2s infinite;
+        }
+
+        .start-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: cyan;
+            text-shadow: 0 0 15px cyan;
+        }
+
+        .start-hint {
+            font-size: 0.9rem;
+            color: #ddd;
+            font-family: sans-serif;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 10px 20px;
+            border-radius: 30px;
+            background: rgba(255,255,255,0.1);
+        }
+
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+
+        /* 2. VISUALIZADOR 3D */
+        spline-viewer {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 1;
+        }
+
+        /* 3. BOTONES DE ABAJO (HUD) */
+        .hud-container {
+            position: absolute;
+            bottom: 30px; 
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px; 
+            z-index: 100;
+            width: 95%; 
+            max-width: 450px;
+            justify-content: center; 
+        }
+
+        .cyber-btn {
+            background: rgba(20, 10, 40, 0.7); 
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(217, 70, 239, 0.5);
+            color: #ffffff;
+            padding: 12px 10px; 
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 11px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex: 1; 
+            transition: all 0.2s;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+            user-select: none;
+            -webkit-tap-highlight-color: transparent; 
+        }
+
+        .cyber-btn:active { transform: scale(0.95); background: rgba(217, 70, 239, 0.4); }
+        .btn-reset { border-color: rgba(0, 255, 255, 0.5); }
+        .icon { margin-right: 5px; font-size: 1.2em; }
+
+        @media (max-width: 350px) {
+            .cyber-btn { font-size: 10px; padding: 10px 5px; }
+            .icon { display: none; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <audio id="bgMusic" loop>
+        <source src="CYRIL - Stumblin' In (Official Audio).mp3" type="audio/mpeg">
+    </audio>
+    <audio id="sfxAudio" preload="auto">
+        <source src="explosion_voz.mp3" type="audio/mpeg">
+    </audio>
+
+    <div id="start-screen" onclick="iniciarFiesta()">
+        <div class="start-content">
+            <div class="start-title">System Update</div>
+            <div class="start-hint">👆 Toca para Iniciar</div>
+        </div>
+    </div>
+
+    <script type="module" src="https://unpkg.com/@splinetool/viewer@1.9.48/build/spline-viewer.js"></script>
+    <spline-viewer url="https://prod.spline.design/3dutSB-goIHLUQnT/scene.splinecode"></spline-viewer>
+
+    <div class="hud-container">
+        <button class="cyber-btn btn-reset" onclick="location.reload()">
+            <span class="icon">↺</span> Reiniciar
+        </button>
+        
+        <a href="https://maps.app.goo.gl/43zsxCDqQWqYnMMd6" target="_blank" class="cyber-btn">
+            <span class="icon">📍</span> MAPS
+        </a>
+
+        <a href="https://wa.me/5578520454" target="_blank" class="cyber-btn">
+            <span class="icon">💬</span> CONFIRMA
+        </a>
+    </div>
+
+    <script>
+        // --- CONFIGURACIÓN DE AUDIO ---
+        var music = document.getElementById("bgMusic");
+        var sfx = document.getElementById("sfxAudio");
+        
+        // --- VARIABLES DE CONTROL (CANDADOS) ---
+        var yaExploto = false; // Bandera para que suene UNA sola vez
+
+        music.volume = 0.2; 
+        sfx.volume = 1.0;  
+
+        // --- 1. FUNCIÓN DE INICIO ---
+        function iniciarFiesta() {
+            console.log("Iniciando experiencia...");
+
+            // A. Música
+            music.play().then(() => {
+                console.log("Música on.");
+            }).catch(e => console.log(e));
+
+            // B. Desbloquear SFX (Play/Mute/Pause rápido)
+            sfx.muted = true; 
+            sfx.play().then(() => {
+                sfx.pause();      
+                sfx.currentTime = 0; 
+                sfx.muted = false;   
+                console.log("SFX listo.");
+            }).catch(e => console.log(e));
+
+            // C. Quitar pantalla
+            var overlay = document.getElementById('start-screen');
+            overlay.style.opacity = '0'; 
+            setTimeout(() => {
+                overlay.style.display = 'none';
+            }, 800);
+        }
+
+        // --- 2. DETECTOR DE EXPLOSIÓN (MEJORADO) ---
+        function playExplosion() {
+            var overlay = document.getElementById('start-screen');
+            
+            // CONDICIONES:
+            // 1. La pantalla de inicio ya no está (el juego empezó).
+            // 2. !yaExploto significa "NO ha explotado todavía".
+            if (overlay.style.display === 'none' && !yaExploto) {
+                
+                // 1. Ponemos el candado INMEDIATAMENTE
+                yaExploto = true; 
+                console.log("Explosión detectada. Esperando 1.5s...");
+
+                // 2. Usamos setTimeout para el retraso
+                setTimeout(function() {
+                    console.log("¡BOOM! Ahora sí suena.");
+                    sfx.currentTime = 0;
+                    sfx.play().catch(e => console.log(e));
+                }, 1500); // <--- AQUÍ ESTÁN TUS 1.5 SEGUNDOS (1500 ms)
+
+            }
+        }
+
+        // Listeners
+        window.addEventListener('mousedown', playExplosion, { capture: true });
+        window.addEventListener('touchstart', playExplosion, { capture: true, passive: false });
+
+    </script>
+
+</body>
+</html>
