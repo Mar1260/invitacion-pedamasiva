@@ -57,6 +57,38 @@
             z-index: 1;
         }
 
+        /* --- NUEVO: MENSAJE FLOTANTE (DESLIZA) --- */
+        #ui-hint {
+            position: fixed;
+            bottom: 95px; /* Justo encima de los botones */
+            left: 0; 
+            width: 100%;
+            text-align: center;
+            pointer-events: none; /* ¡Vital! Deja pasar los clics al 3D */
+            z-index: 10;
+        }
+
+        .hand-text {
+            display: inline-block;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            padding: 8px 16px;
+            border-radius: 20px;
+            color: rgba(0, 255, 255, 0.9); /* Cyan Neón */
+            font-family: sans-serif;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.2);
+            animation: pulseText 2s infinite;
+        }
+
+        @keyframes pulseText { 
+            0%, 100% { transform: scale(1); opacity: 0.8; } 
+            50% { transform: scale(1.05); opacity: 1; text-shadow: 0 0 10px cyan; } 
+        }
+
         /* 3. BOTONES DE ABAJO (HUD) */
         .hud-container {
             position: absolute;
@@ -125,6 +157,10 @@
     <script type="module" src="https://unpkg.com/@splinetool/viewer@1.9.48/build/spline-viewer.js"></script>
     <spline-viewer url="https://prod.spline.design/3dutSB-goIHLUQnT/scene.splinecode"></spline-viewer>
 
+    <div id="ui-hint" style="display: none; opacity: 0; transition: opacity 1s ease;">
+        <div class="hand-text">↔ Desliza para explorar</div>
+    </div>
+
     <div class="hud-container">
         <button class="cyber-btn btn-reset" onclick="location.reload()">
             <span class="icon">↺</span> ROMPER DE NUEVO
@@ -135,7 +171,7 @@
         </a>
 
         <a href="https://wa.me/5578520454?text=Con%20gusto%20nos%20vemos%20ahi" target="_blank" class="cyber-btn">
-    <span class="icon">💬</span> CONFIRMA
+            <span class="icon">💬</span> CONFIRMA
         </a>
     </div>
 
@@ -194,9 +230,27 @@
                     console.log("¡BOOM! Ahora sí suena.");
                     sfx.currentTime = 0;
                     sfx.play().catch(e => console.log(e));
+                    
+                    // --- NUEVO: ACTIVAR EL TEXTO "DESLIZA" ---
+                    // Aparece justo cuando explota para indicar que giren la cámara
+                    mostrarAyuda();
+
                 }, 1500); // <--- AQUÍ ESTÁN TUS 1.5 SEGUNDOS (1500 ms)
 
             }
+        }
+
+        // --- 3. FUNCIÓN PARA MOSTRAR LA AYUDA FLOTANTE ---
+        function mostrarAyuda() {
+            var ui = document.getElementById('ui-hint');
+            ui.style.display = 'block';
+            
+            // Aparecer suave
+            setTimeout(() => { ui.style.opacity = '1'; }, 100);
+            
+            // Desaparecer solo a los 6 segundos
+            setTimeout(() => { ui.style.opacity = '0'; }, 6000);
+            setTimeout(() => { ui.style.display = 'none'; }, 7000);
         }
 
         // Listeners
@@ -206,5 +260,4 @@
     </script>
 
 </body>
-
 </html>
