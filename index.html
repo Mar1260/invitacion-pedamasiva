@@ -57,7 +57,7 @@
             z-index: 1;
         }
 
-        /* --- NUEVO: MENSAJE FLOTANTE (DESLIZA) --- */
+        /* --- MENSAJE FLOTANTE (INSTRUCCIÓN) --- */
         #ui-hint {
             position: fixed;
             bottom: 95px; /* Justo encima de los botones */
@@ -158,7 +158,7 @@
     <spline-viewer url="https://prod.spline.design/3dutSB-goIHLUQnT/scene.splinecode"></spline-viewer>
 
     <div id="ui-hint" style="display: none; opacity: 0; transition: opacity 1s ease;">
-        <div class="hand-text">↔ Desliza para explorar</div>
+        <div class="hand-text">👆 Toca la piñata para romperla</div>
     </div>
 
     <div class="hud-container">
@@ -179,9 +179,7 @@
         // --- CONFIGURACIÓN DE AUDIO ---
         var music = document.getElementById("bgMusic");
         var sfx = document.getElementById("sfxAudio");
-        
-        // --- VARIABLES DE CONTROL (CANDADOS) ---
-        var yaExploto = false; // Bandera para que suene UNA sola vez
+        var yaExploto = false; 
 
         music.volume = 0.2; 
         sfx.volume = 1.0;  
@@ -191,66 +189,67 @@
             console.log("Iniciando experiencia...");
 
             // A. Música
-            music.play().then(() => {
-                console.log("Música on.");
-            }).catch(e => console.log(e));
+            music.play().catch(e => console.log(e));
 
-            // B. Desbloquear SFX (Play/Mute/Pause rápido)
+            // B. Desbloquear SFX
             sfx.muted = true; 
             sfx.play().then(() => {
                 sfx.pause();      
                 sfx.currentTime = 0; 
                 sfx.muted = false;   
-                console.log("SFX listo.");
             }).catch(e => console.log(e));
 
-            // C. Quitar pantalla
+            // C. Quitar pantalla de inicio
             var overlay = document.getElementById('start-screen');
             overlay.style.opacity = '0'; 
+            
             setTimeout(() => {
                 overlay.style.display = 'none';
+                
+                // --- NUEVO: MOSTRAR INSTRUCCIÓN AQUÍ ---
+                // En cuanto se va la pantalla negra, aparece el texto "Toca la piñata..."
+                mostrarInstruccion();
+                
             }, 800);
         }
 
-        // --- 2. DETECTOR DE EXPLOSIÓN (MEJORADO) ---
+        // --- 2. DETECTOR DE EXPLOSIÓN ---
         function playExplosion() {
             var overlay = document.getElementById('start-screen');
             
-            // CONDICIONES:
-            // 1. La pantalla de inicio ya no está (el juego empezó).
-            // 2. !yaExploto significa "NO ha explotado todavía".
             if (overlay.style.display === 'none' && !yaExploto) {
                 
-                // 1. Ponemos el candado INMEDIATAMENTE
-                yaExploto = true; 
-                console.log("Explosión detectada. Esperando 1.5s...");
+                // --- NUEVO: OCULTAR INSTRUCCIÓN INMEDIATAMENTE ---
+                // El usuario ya obedeció y dio clic, así que borramos el texto.
+                ocultarInstruccion();
 
-                // 2. Usamos setTimeout para el retraso
+                // Ponemos candado
+                yaExploto = true; 
+                console.log("Explosión iniciada...");
+
+                // Reproducimos SFX con retraso de 1.5s
                 setTimeout(function() {
-                    console.log("¡BOOM! Ahora sí suena.");
+                    console.log("¡BOOM!");
                     sfx.currentTime = 0;
                     sfx.play().catch(e => console.log(e));
-                    
-                    // --- NUEVO: ACTIVAR EL TEXTO "DESLIZA" ---
-                    // Aparece justo cuando explota para indicar que giren la cámara
-                    mostrarAyuda();
-
-                }, 1500); // <--- AQUÍ ESTÁN TUS 1.5 SEGUNDOS (1500 ms)
-
+                }, 1500); 
             }
         }
 
-        // --- 3. FUNCIÓN PARA MOSTRAR LA AYUDA FLOTANTE ---
-        function mostrarAyuda() {
+        // --- FUNCIONES DE CONTROL DEL MENSAJE FLOTANTE ---
+        
+        function mostrarInstruccion() {
             var ui = document.getElementById('ui-hint');
             ui.style.display = 'block';
-            
             // Aparecer suave
             setTimeout(() => { ui.style.opacity = '1'; }, 100);
-            
-            // Desaparecer solo a los 6 segundos
-            setTimeout(() => { ui.style.opacity = '0'; }, 6000);
-            setTimeout(() => { ui.style.display = 'none'; }, 7000);
+        }
+
+        function ocultarInstruccion() {
+            var ui = document.getElementById('ui-hint');
+            ui.style.opacity = '0'; // Se desvanece
+            // Se quita del mapa después de desvanecerse
+            setTimeout(() => { ui.style.display = 'none'; }, 1000);
         }
 
         // Listeners
